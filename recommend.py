@@ -5,11 +5,11 @@ import pickle
 
 from openai import OpenAI
 from scipy import spatial
-from tokens import OPENAI
+from tokens import OAI_TOKEN
 
 from database import db
 
-client = OpenAI(api_key=OPENAI)
+client = OpenAI(api_key=OAI_TOKEN)
 
 EMBEDDING_MODEL = "text-embedding-3-small"
 
