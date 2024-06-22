@@ -101,6 +101,8 @@ if __name__ == '__main__':
 
     indices_of_nearest_neighbors, distances = nearest_strings(db[:, 0], query_idx)
 
+    print(f"Finding alternatives for: {query_string}   (C02e cost: {db[query_idx, 5]})")
+
     count = 0
     for i in indices_of_nearest_neighbors:
         
@@ -114,10 +116,13 @@ if __name__ == '__main__':
 
         count += 1
 
+        isLowCarbonStr = "LOWER CARBON" if db[i, 5] < db[query_idx, 5] else ""
+
         # print out the similar strings and their distances
         print(
             f"""
-        --- Recommendation #{count} ---
+        --- {isLowCarbonStr} Recommendation #{count} ---
         String: {db[i, 0]}
+        C02e: {db[i, 5]}
         Distance: {distances[i]:0.3f}"""
         )
