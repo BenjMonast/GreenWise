@@ -20,9 +20,25 @@
             color: #fff;
             font-weight: 700;
         }
-
-
     </style>
+
+    <script>
+        function handleReceiptUpload(file){
+            var formData = new FormData();
+            formData.append('file', file);
+
+            $.ajax({
+                type: "POST",
+                processData: false,
+                contentType: false,
+                cache: false,
+                url: "read_receipt",
+                data: formData
+            }).done(function (data) {
+                
+            });
+	    }
+    </script>
 
     <!-- Custom fonts for this template-->
     <link href="static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
