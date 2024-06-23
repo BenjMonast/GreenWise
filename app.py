@@ -75,9 +75,9 @@ def read_receipt():
                         "text": "Compile the information on this receipt into a csv file with the columns Product, Price, and Category, where the possible Categories are Food, Household Essentials, Health and Beauty, Electronics, Clothing, Home and Furniture, Toys and Games, Office Supplies, Outdoor, Automotive, Baby, and Pet."
                     },
                     {
-                        "type": "text",
-                        "text": {
-                            "text": ""
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/jpeg;base64,{base64_image}"
                         }
                     }
                 ]
@@ -88,10 +88,13 @@ def read_receipt():
 
     response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
     message = response.json()['choices'][0]['message']['content']
-    
+
     csvData =  re.search(r'```csv(.*)```', message, re.DOTALL)[0]
 
     return {"content": csvData}
+    # return {}
+
+
     # return {}
 
 if __name__ == '__main__':
