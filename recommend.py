@@ -57,9 +57,13 @@ def RAW_get_embedding(input: str, model=EMBEDDING_MODEL):
         model=model
     )
     return response.data[0].embedding
-    
+   
+changed = False   
+ 
 for i, row in enumerate(db):
     if (row[0], EMBEDDING_MODEL) not in embedding_cache:
+        changed = True
+        
         embedding_cache[(row[0], EMBEDDING_MODEL)] = RAW_get_embedding(row[0], EMBEDDING_MODEL)
         
         if i != 0 and i % 500 == 0:
@@ -67,8 +71,9 @@ for i, row in enumerate(db):
             with open(embedding_cache_path, "wb") as embedding_cache_file:
                 pickle.dump(embedding_cache, embedding_cache_file)
         
-with open(embedding_cache_path, "wb") as embedding_cache_file:
-    pickle.dump(embedding_cache, embedding_cache_file)
+if changed:
+    with open(embedding_cache_path, "wb") as embedding_cache_file:
+        pickle.dump(embedding_cache, embedding_cache_file)
 
 
 def distances_from_embeddings(query_embedding: List[float], embeddings: List[List[float]]) -> list[float]:
@@ -133,7 +138,7 @@ def get_rec(prod: str, rank_threshold=0.4, same_threshold=0.2, exclude_high_carb
         if distances[i] > rank_threshold:
             break
 
-        if exclude_high_carbon and carbon_cost <= db[i, 2]:
+        if exclude_high_carbon and carbon_cost <= float(db[i, 2]):
             break
 
         ranks.append(i)
