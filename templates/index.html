@@ -252,8 +252,8 @@
                                                     <th>Product</th>
                                                     <th>Price</th>
                                                     <th>Category</th>
-                                                    <th>Date</th>
                                                     <th>Carbon Cost</th>
+                                                    <th>Date</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -267,7 +267,9 @@
                                                               data-content="{{ row[5] }}">
                                                                 <div class="d-flex justify-content-between align-items-center">
                                                                     <div class="text-left">
-                                                                    {{ cell }}
+                                                                        <span>
+                                                                            {{ cell }}
+                                                                        </span>
                                                                     </div>
                                                                     {% if row[5] %}
                                                                     <div>

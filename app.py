@@ -9,13 +9,14 @@ app = Flask(__name__)
 @app.route("/")
 def index():
     db = []
+    db_with_rec = []
     if os.path.isfile("db.pkl"):
         with open("db.pkl", "rb") as f:
             db = pickle.load(f)
         
         # function to sort
         def get_date(item):
-            return datetime.strptime(item[3], "%Y-%m-%d")
+            return datetime.strptime(item[4], "%Y-%m-%d")
 
         db = sorted(db, key=get_date)
 
@@ -138,8 +139,8 @@ def read_receipt():
 
     for i, row in enumerate(csvData):
         out[i].append(row)
-        out[i].append(date)
         out[i].append(get_co2e(out[i][0]))
+        out[i].append(date)
 
     if not os.path.isfile("db.pkl"):
         db = []

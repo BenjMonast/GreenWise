@@ -143,12 +143,12 @@ def get_co2e(prod: str, same_threshold=0.9):
     if prod.lower() in cmp_strs:
         for item in db:
             if np.char.lower(item[0]) == prod.lower():
-                return item[2]
+                return round(item[2],2)
     else:
         _, distances, co2e = nearest_strings(prod)
         really_close = [co2e[i] for i, d in enumerate(distances) if d <= same_threshold]
         if len(really_close) > 0:
-            return sum(really_close) / len(really_close)
+            return round(sum(really_close) / len(really_close),2)
         else:
             print("UNABLE TO FIND SIMILIAR ITEMS....")
             return -1
@@ -169,10 +169,10 @@ def get_rec(prod: str, rank_threshold=2.0, exclude_high_carbon=True):
         
         # stop after exceeding threshold
         if distances[i] > rank_threshold:
-            break
+            continue
 
-        if exclude_high_carbon and carbon_cost <= carbon[i]:
-            break
+        if exclude_high_carbon and carbon_cost <= carbon[i] + 0.05:
+            continue
 
         return name, float(carbon[i]), distances[i]
 
