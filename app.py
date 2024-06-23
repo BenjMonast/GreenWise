@@ -39,6 +39,8 @@ def index():
 
         db_with_rec = []
 
+        links = 0
+
         for item in db:
             rec_name, rec_carbon, _, rec_company = get_rec(item[0])
             if rec_name != -1:
@@ -46,7 +48,11 @@ def index():
                 desc = f"{rec_name} from {rec_company}"
 
                 print(desc)
-                link = "" if desc not in link_for_prod.keys() else link_for_prod[desc]
+                if desc not in link_for_prod.keys():
+                    link = ""
+                else:
+                    link = link_for_prod[desc]
+                    links += 1
 
                 rec = [f"{desc}\nC02e: {rec_carbon}", link]
                 db_with_rec.append(item + rec)
@@ -77,9 +83,9 @@ def index():
         reduction += (orig - new)
         leaves += 1
 
+    reduction = round(reduction, 2)
 
-
-    return render_template("index.html", data=db_with_rec, num=numtasks, carbon=totalcarbon, total=display_total, leaves=leaves, reduction=reduction)
+    return render_template("index.html", data=db_with_rec, num=numtasks, carbon=totalcarbon, total=display_total, leaves=leaves, reduction=reduction, links=links)
 
 # @app.route("/carbon")
 # def carbon():
