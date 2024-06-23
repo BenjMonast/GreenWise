@@ -18,7 +18,8 @@ link_for_prod = {
     "Annie's Organic Sweet & Spicy BBQ Sauce from General Mills, Inc.": "https://www.amazon.com/Annies-Organic-Gluten-Sweet-Spicy/dp/B004SI9SCQ",
     "KOSHER DILL CHIPS, KOSHER DILL from Mount Olive Pickle Company Inc.": "https://www.mtolivepickles.com/pickle-products/kosher-dill-hamburger-chips/",
     "Kellogg's Nutri-Grain Cereal Bars Apple Cinnamon 31.2oz from Kellogg Company US": "https://www.walmart.com/ip/Nutri-Grain-Apple-Cinnamon-Chewy-Soft-Baked-Breakfast-Bars-31-2-oz-24-Count/52683518",
-    "HOT & SPICY VEGGIE SAUSAGE PATTIES, HOT & SPICY VEGGIE from Worthington Foods Inc.": "https://eatworthington.com/sausage-patty/"
+    "HOT & SPICY VEGGIE SAUSAGE PATTIES, HOT & SPICY VEGGIE from Worthington Foods Inc.": "https://eatworthington.com/sausage-patty/",
+    "ALL-BEEF PREMIUM JUMBO HOT DOGS from The Kroger Co.": "https://www.kroger.com/p/private-selection-jumbo-premium-all-beef-hot-dogs/0001111020785",
 }
 
 @app.route("/")
