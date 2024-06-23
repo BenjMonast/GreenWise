@@ -51,7 +51,10 @@ def read_receipt():
     response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
     message = response.json()['choices'][0]['message']['content']
 
+    
+
     return {"content": message}
+    # return {}
 
 if __name__ == '__main__':
     app.run()
