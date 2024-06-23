@@ -19,7 +19,7 @@ def manual():
 @app.route("/read_receipt_email", methods=['POST'])
 
 def read_receipt_email():
-    receipt = read_new_emails("somethingnormalai@gmail.com", "bszr fscr qfmy txto")
+    receipt = read_new_emails("somethingnormalai@gmail.com", EMAIL_PASSWORD)
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {OAI_TOKEN}"
