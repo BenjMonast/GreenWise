@@ -253,22 +253,23 @@
                                                     <th>Price</th>
                                                     <th>Category</th>
                                                     <th>Date</th>
+                                                    <th>Carbon Cost</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {% for row in data %}
                                                 <tr>
-                                                    {% for cell in row[0:4] %}
+                                                    {% for cell in row[0:5] %}
                                                         {% if loop.index0 == 0 %}
                                                         <td>
                                                             <a tabindex="0" data-toggle="popover" data-trigger="focus" 
-                                                              title="{% if row[4] %}Low Carbon Opportunity{% endif %}"
-                                                              data-content="{{ row[4] }}">
+                                                              title="{% if row[5] %}Low Carbon Opportunity{% endif %}"
+                                                              data-content="{{ row[5] }}">
                                                                 <div class="d-flex justify-content-between align-items-center">
                                                                     <div class="text-left">
                                                                     {{ cell }}
                                                                     </div>
-                                                                    {% if row[4] %}
+                                                                    {% if row[5] %}
                                                                     <div>
                                                                         <i class="fa fa-leaf" style="color:green"></i>
                                                                     </div>
