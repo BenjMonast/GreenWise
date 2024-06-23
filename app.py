@@ -16,8 +16,8 @@ def carbon():
 @app.route("/manual")
 def manual():
     return render_template("manual.html")
-@app.route("/read_receipt_email", methods=['POST'])
 
+@app.route("/read_receipt_email", methods=['POST'])
 def read_receipt_email():
     receipt = read_new_emails("somethingnormalai@gmail.com", EMAIL_PASSWORD)
     headers = {
