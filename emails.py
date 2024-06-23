@@ -1,11 +1,12 @@
 import imaplib
 import email
+import os
+import pickle
 from email.header import decode_header
 import getpass
 import time
 from tokens import OAI_TOKEN
 import base64, requests, re
-from emails import read_new_emails
 
 def read_new_emails(email_account, password, folder="inbox", check_interval=60):
     def fetch_emails():
@@ -91,38 +92,56 @@ def read_new_emails(email_account, password, folder="inbox", check_interval=60):
             return emailstring
 
 def read_receipt_email():
+    OAI_TOKEN = "sk-proj-4detDT2cE6pPgrFVXeYCT3BlbkFJqIs6aFzDL3BWhNAKd0tI"
     receipt = read_new_emails("somethingnormalai@gmail.com", "bszr fscr qfmy txto")
     if receipt is not None:
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {OAI_TOKEN}"
-        }
-
-        payload = {
-            "model": "gpt-4o",
-            "messages": [
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": "Compile the information on this receipt into a csv file with the columns Product, Price, and Category, where the possible Categories are Food, Household Essentials, Health and Beauty, Electronics, Clothing, Home and Furniture, Toys and Games, Office Supplies, Outdoor, Automotive, Baby, and Pet."
-                        },
-                        {
-                            "type": "text",
-                            "text": {
-                                "text": receipt
-                            }
-                        }
-                    ]
+        csvData = None
+        attempts = 0
+        while csvData == None and attempts < 4:
+            try:
+                headers = {
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {OAI_TOKEN}"
                 }
-            ],
-            "max_tokens": 1000
-        }
 
-        response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
-        message = response.json()['choices'][0]['message']['content']
+                payload = {
+                    "model": "gpt-4o",
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": "Compile the information on this receipt into a csv file with the columns Product, Price, and Category, where the possible Categories are Food, Household Essentials, Health and Beauty, Electronics, Clothing, Home and Furniture, Toys and Games, Office Supplies, Outdoor, Automotive, Baby, and Pet."
+                                },
+                                {
+                                    "type": "text",
+                                    "text": str(receipt)
 
-        csvData = re.search(r'```csv(.*)```', message, re.DOTALL)[0]
+                                }
+                            ]
+                        }
+                    ],
+                    "max_tokens": 1000
+                }
+                response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+                message = response.json()['choices'][0]['message']['content']
+                csvData = re.search(r'```csv\n(.*)\n```', message, re.DOTALL)[0]
+                if len(csvData) is None:
+                    raise Exception
+            except Exception as e:
+                print(e)
+                attempts += 1
+    if not os.path.isfile("db.pkl"):
+        db = []
+    else:
+        with open("db.pkl", "rb") as cache_file:
+            db = pickle.load(cache_file)
 
+    db += csvData
+
+    with open("db.pkl", "wb") as cache_file:
+        pickle.dump(db, cache_file)
+
+    return {"content": csvData}
 
