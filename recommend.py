@@ -1,13 +1,12 @@
 from typing import List
 import numpy as np
+from numpy import genfromtxt
 import pandas as pd
 import pickle
 
 from openai import OpenAI
 from scipy import spatial
 from tokens import OAI_TOKEN
-
-from database import db
 
 client = OpenAI(api_key=OAI_TOKEN)
 
@@ -24,8 +23,15 @@ try:
     embedding_cache = pd.read_pickle(embedding_cache_path)
 except FileNotFoundError:
     embedding_cache = {}
-with open(embedding_cache_path, "wb") as embedding_cache_file:
-    pickle.dump(embedding_cache, embedding_cache_file)
+
+data = []
+with open("carbon_cloud_data.csv", "r") as f:
+    for line in f.readlines():
+        line = line.split("|")
+        line[2] = float(line[2])
+        data.append(line)
+db = np.array(data)
+
 
 # define a function to retrieve embeddings from the cache if present, and otherwise request via the API
 def get_embedding(
@@ -35,7 +41,7 @@ def get_embedding(
 ) -> list:
     """Return embedding of given string, using a cache to avoid recomputing."""
     if (string, model) not in embedding_cache.keys():
-        print("embedding not found in cache, calculating...")
+        # print("embedding not found in cache, calculating...")
         embedding_cache[(string, model)] = RAW_get_embedding(string, model)
         with open(embedding_cache_path, "wb") as embedding_cache_file:
             pickle.dump(embedding_cache, embedding_cache_file)
@@ -51,6 +57,18 @@ def RAW_get_embedding(input: str, model=EMBEDDING_MODEL):
         model=model
     )
     return response.data[0].embedding
+    
+for i, row in enumerate(db):
+    if (row[0], EMBEDDING_MODEL) not in embedding_cache:
+        embedding_cache[(row[0], EMBEDDING_MODEL)] = RAW_get_embedding(row[0], EMBEDDING_MODEL)
+        
+        if i != 0 and i % 500 == 0:
+            print("progress saved " + str(i))
+            with open(embedding_cache_path, "wb") as embedding_cache_file:
+                pickle.dump(embedding_cache, embedding_cache_file)
+        
+with open(embedding_cache_path, "wb") as embedding_cache_file:
+    pickle.dump(embedding_cache, embedding_cache_file)
 
 
 def distances_from_embeddings(query_embedding: List[float], embeddings: List[List[float]]) -> list[float]:
@@ -86,10 +104,10 @@ def get_c02e(prod: str, same_threshold=0.2):
     if prod.lower() in cmp_strs:
         for item in db:
             if np.char.lower(item[0]) == prod.lower():
-                return float(item[5])
+                return item[2]
     else:
         _, distances = nearest_strings(db[:, 0], prod)
-        really_close = [float(db[i, 5]) for i, d in enumerate(distances) if d <= same_threshold]
+        really_close = [float(db[i, 2]) for i, d in enumerate(distances) if d <= same_threshold]
         if len(really_close) > 0:
             return sum(really_close) / len(really_close)
         else:
@@ -115,7 +133,7 @@ def get_rec(prod: str, rank_threshold=0.4, same_threshold=0.2, exclude_high_carb
         if distances[i] > rank_threshold:
             break
 
-        if exclude_high_carbon and carbon_cost <= db[i, 5]:
+        if exclude_high_carbon and carbon_cost <= db[i, 2]:
             break
 
         ranks.append(i)
@@ -134,12 +152,12 @@ if __name__ == '__main__':
 
     for count, rec in enumerate(get_rec(query_string, rank_threshold=0.6, exclude_high_carbon=False)):
 
-        isLowCarbonStr = "LOWER CARBON" if float(rec[5]) < carbon_cost else ""
+        isLowCarbonStr = "LOWER CARBON" if float(rec[2]) < carbon_cost else ""
 
         # print out the similar strings and their distances
         print(
             f"""
         --- {isLowCarbonStr} Recommendation #{count + 1} ---
         String: {rec[0]}
-        C02e: {rec[5]}"""
+        C02e: {rec[2]}"""
         )
