@@ -109,6 +109,47 @@ def read_receipt():
     with open('redcircle_cache.pkl', 'wb') as f:
         pickle.dump(cache, f)
 
+    names = [row[0] for row in out]
+    query = ", ".join(names)
+    
+    csvData = None
+    attempts = 0
+
+    while csvData == None and attempts < 4:
+        try:    
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {OAI_TOKEN}"
+            }
+
+            payload = {
+                "model": "gpt-4o",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": f"Given the list of products below, return in csv format a list of categories that each product should fall into. The possible categories are Food, Household Essentials, Health and Beauty, Electronics, Clothing, Home and Furniture, Toys and Games, Office Supplies, Outdoor, Automotive, Baby, and Pet. Ensure the only column in this csv file is \"category\"\n{query}"
+                            }
+                        ]
+                    }
+                ],
+                "max_tokens": 1000
+            }
+
+            response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+            print(response.json())
+            message = response.json()['choices'][0]['message']['content']
+
+            csvData = re.search(r'```csv\n(.*)\n```', message, re.DOTALL)[1].splitlines()[1:]
+        except Exception as e:
+            print(e)
+            attempts += 1
+
+    for i, row in enumerate(csvData):
+        out[i].append(row)
+
     return {"content": out}
 
 
