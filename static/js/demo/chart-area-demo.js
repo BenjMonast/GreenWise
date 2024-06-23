@@ -31,7 +31,7 @@ function number_format(number, decimals, dec_point, thousands_sep) {
 var ctx = document.getElementById("myAreaChart");
 var products = [
     ["MORNIF MEAT", "NASOYA VEGET", "GG OATMILK", "PILLSBURY", "GG STARBUCKS", "GG FRUIT", "GG FRUIT", "TOFURKY MEAT", "TAZO", "ANNIE'S", "SBR", "SOUP", "SILK", "MI OLIVE PKL", "BISCOFF.8OZ", "GG GRANOLA", "HH KINARA", "NATURE’S", "ANNIES FRFT"],
-    [3.79, 1.49, 3.79, 2.49, 5.99, 3.29, 3.29, 3.99, 3.29, 2.99, 2.99, 4.59, 2.89, 1.99, 3.59, 2.79, 3.79, 3.29, 1.49],
+    [1100, 1200, 900, 850, 800, 825, 750, 760, 760, 760, 740, 750, 720, 700, 680, 650, 655, 660, 640, 740, 750, 720, 700, 680, 650, 655, 660, 640, 740, 750, 720, 700, 680, 650, 655, 660, 640,740, 750, 720, 700, 680, 650, 655, 660, 640,740, 750, 720, 700, 680, 650, 655, 660, 640],
     ["Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food"]
 ]
 
@@ -93,7 +93,7 @@ var myLineChart = new Chart(ctx, {
           padding: 10,
           // Include a dollar sign in the ticks
           callback: function(value, index, values) {
-            return 'Carbon ' + number_format(value);
+            return number_format(value) + 'kg ';
           }
         },
         gridLines: {
