@@ -36,7 +36,13 @@ def index():
             else:
                 db_with_rec.append(item + [""])
 
-    return render_template("index.html", data=db_with_rec, num=numtasks)
+    if len(db) == 0:
+        totalcarbon = 0
+    else:
+        totalcarbon = sum([row[3] for row in db])
+
+
+    return render_template("index.html", data=db_with_rec, num=numtasks, carbon=totalcarbon)
 
 # @app.route("/carbon")
 # def carbon():
