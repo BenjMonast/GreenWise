@@ -20,7 +20,7 @@ def index():
         
         # function to sort
         def get_date(date):
-            return datetime.strptime(date[3], "%Y-%m-%d")
+            return datetime.strptime(date[4], "%Y-%m-%d")
 
         db = sorted(db, key=get_date)
 
