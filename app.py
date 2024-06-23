@@ -24,10 +24,10 @@ def index():
         for item in db:
             recs = get_rec(item[0])
             if len(recs) > 0:
-                rec = [recs[0], recs[1], rec[5]]
-                db_with_rec.append(item + [rec])
+                rec = [f"{recs[0]} from {recs[1]}\nC02e: {rec[5]}"]
+                db_with_rec.append(item + rec)
             else:
-                db_with_rec.append(item + ["", "", ""])
+                db_with_rec.append(item + [""])         
 
     return render_template("index.html", data=db_with_rec)
 
