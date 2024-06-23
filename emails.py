@@ -4,6 +4,9 @@ import email
 from email.header import decode_header
 import getpass
 import time
+from tokens import OAI_TOKEN
+import base64, requests, re
+from emails import read_new_emails
 
 def read_new_emails(email_account, password, folder="inbox", check_interval=60):
     def fetch_emails():
@@ -38,52 +41,89 @@ def read_new_emails(email_account, password, folder="inbox", check_interval=60):
 
     seen_emails = set()
 
-  #  while True:
-    emails = fetch_emails()
-    emailstring = ""
-    for msg in emails:
-        email_id = msg["Message-ID"]
-        if email_id not in seen_emails:
-            seen_emails.add(email_id)
+    while True:
+        emails = fetch_emails()
+        emailstring = ""
+        for msg in emails:
+            email_id = msg["Message-ID"]
+            if email_id not in seen_emails:
+                seen_emails.add(email_id)
 
-            # Decode the email subject
-            subject, encoding = decode_header(msg["Subject"])[0]
-            if isinstance(subject, bytes):
-                subject = subject.decode(encoding if encoding else "utf-8")
+                # Decode the email subject
+                subject, encoding = decode_header(msg["Subject"])[0]
+                if isinstance(subject, bytes):
+                    subject = subject.decode(encoding if encoding else "utf-8")
 
-            # Decode the email sender
-            from_ = msg.get("From")
+                # Decode the email sender
+                from_ = msg.get("From")
 
-            emailstring = emailstring + subject
-            emailstring = emailstring + from_
-            # If the email message is multipart
-            if msg.is_multipart():
-                # Iterate over email parts
-                for part in msg.walk():
+                emailstring = emailstring + subject
+                emailstring = emailstring + from_
+                # If the email message is multipart
+                if msg.is_multipart():
+                    # Iterate over email parts
+                    for part in msg.walk():
+                        # Extract content type of email
+                        content_type = part.get_content_type()
+                        content_disposition = str(part.get("Content-Disposition"))
+
+                        try:
+                            # Get the email body
+                            body = part.get_payload(decode=True).decode()
+                        except:
+                            pass
+
+                        if content_type == "text/plain" and "attachment" not in content_disposition:
+                            # Print text/plain emails and skip attachments
+                            emailstring = emailstring + body
+                        elif "attachment" in content_disposition:
+                            # Skip attachments for now
+                            pass
+                else:
                     # Extract content type of email
-                    content_type = part.get_content_type()
-                    content_disposition = str(part.get("Content-Disposition"))
+                    content_type = msg.get_content_type()
 
-                    try:
-                        # Get the email body
-                        body = part.get_payload(decode=True).decode()
-                    except:
-                        pass
+                    # Get the email body
+                    body = msg.get_payload(decode=True).decode()
+                    if content_type == "text/plain":
+                        # Print only text email parts
+                        emailstring = emailstring +body
+                emailstring = emailstring + ("=" * 100)
+            return emailstring
 
-                    if content_type == "text/plain" and "attachment" not in content_disposition:
-                        # Print text/plain emails and skip attachments
-                        emailstring = emailstring + body
-                    elif "attachment" in content_disposition:
-                        # Skip attachments for now
-                        pass
-            else:
-                # Extract content type of email
-                content_type = msg.get_content_type()
+def read_receipt_email():
+    receipt = read_new_emails("somethingnormalai@gmail.com", "bszr fscr qfmy txto")
+    if receipt is not None:
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {OAI_TOKEN}"
+        }
 
-                # Get the email body
-                body = msg.get_payload(decode=True).decode()
-                if content_type == "text/plain":
-                    # Print only text email parts
-                    emailstring = emailstring +body
-            emailstring = emailstring + ("=" * 100)
-        return emailstring
+        payload = {
+            "model": "gpt-4o",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Compile the information on this receipt into a csv file with the columns Product, Price, and Category, where the possible Categories are Food, Household Essentials, Health and Beauty, Electronics, Clothing, Home and Furniture, Toys and Games, Office Supplies, Outdoor, Automotive, Baby, and Pet."
+                        },
+                        {
+                            "type": "text",
+                            "text": {
+                                "text": receipt
+                            }
+                        }
+                    ]
+                }
+            ],
+            "max_tokens": 1000
+        }
+
+        response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+        message = response.json()['choices'][0]['message']['content']
+
+        csvData = re.search(r'```csv(.*)```', message, re.DOTALL)[0]
+
+
