@@ -267,9 +267,7 @@
                                                               data-content="{{ row[5] }}">
                                                                 <div class="d-flex justify-content-between align-items-center">
                                                                     <div class="text-left">
-                                                                        <span>
-                                                                            {{ cell }}
-                                                                        </span>
+                                                                        <span>{{ cell }}</span>
                                                                     </div>
                                                                     {% if row[5] %}
                                                                     <div>
@@ -280,7 +278,11 @@
                                                             </a>
                                                         </td>
                                                         {% else %}
-                                                        <td>{{ cell }}</td>
+                                                        <td>
+                                                            {% if cell != -1 %}
+                                                                <span>{{cell}}</span>
+                                                            {% endif %}
+                                                        </td>
                                                         {% endif %}
                                                     {% endfor %}
                                                 </tr>

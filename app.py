@@ -3,6 +3,7 @@ from recommend import get_co2e, get_rec
 from tokens import *
 import base64, requests, re, pickle, os
 from datetime import datetime
+from markupsafe import Markup
 
 app = Flask(__name__)
 
@@ -141,6 +142,9 @@ def read_receipt():
         out[i].append(row)
         out[i].append(get_co2e(out[i][0]))
         out[i].append(date)
+
+    for i, row in enumerate(out):
+        out[i][0] = Markup(out[i][0])
 
     if not os.path.isfile("db.pkl"):
         db = []

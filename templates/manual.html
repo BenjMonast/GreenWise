@@ -58,7 +58,9 @@
                     const tr = document.createElement('tr');
                     Object.values(data).forEach(value => {
                         const td = document.createElement('td');
-                        td.innerHTML = "<span>" + value + "</span>";
+                        if (value != -1) {
+                            td.innerHTML = "<span>" + value + "</span>";
+                        }
                         tr.appendChild(td);
                     });
                     tbody.appendChild(tr);
