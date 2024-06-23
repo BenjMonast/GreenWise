@@ -109,10 +109,12 @@ def read_receipt():
     with open('redcircle_cache.pkl', 'wb') as f:
         pickle.dump(cache, f)
 
+
+    with open("db.pkl", "wb") as cache_file:
+        pickle.dump(out, cache_file)
+        
     return {"content": out}
 
-
-    # return {}
 
 if __name__ == '__main__':
     app.run()
