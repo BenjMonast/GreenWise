@@ -1,7 +1,6 @@
 from flask import Flask, request, render_template
 from tokens import *
 import base64, requests, re, pickle
-from emails import read_new_emails
 
 app = Flask(__name__)
 
@@ -9,50 +8,13 @@ app = Flask(__name__)
 def index():
     return render_template("index.html")
 
-@app.route("/carbon")
-def carbon():
-    return render_template("carbon.html")
+# @app.route("/carbon")
+# def carbon():
+#     return render_template("carbon.html")
 
 @app.route("/manual")
 def manual():
     return render_template("manual.html")
-@app.route("/read_receipt_email", methods=['POST'])
-
-def read_receipt_email():
-    receipt = read_new_emails("somethingnormalai@gmail.com", EMAIL_PASSWORD)
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {OAI_TOKEN}"
-    }
-
-    payload = {
-        "model": "gpt-4o",
-        "messages": [
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": "Compile the information on this receipt into a csv file with the columns Product, Price, and Category, where the possible Categories are Food, Household Essentials, Health and Beauty, Electronics, Clothing, Home and Furniture, Toys and Games, Office Supplies, Outdoor, Automotive, Baby, and Pet."
-                    },
-                    {
-                        "type": "text",
-                        "text": {
-                            "text": receipt
-                        }
-                    }
-                ]
-            }
-        ],
-        "max_tokens": 1000
-    }
-
-    response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
-    message = response.json()['choices'][0]['message']['content']
-
-    csvData = re.search(r'```csv(.*)```', message, re.DOTALL)[0]
-
-    return {"content": csvData}
 
 
 @app.route("/read_receipt", methods=['POST'])
@@ -150,10 +112,11 @@ def read_receipt():
     for i, row in enumerate(csvData):
         out[i].append(row)
 
+    # with open("db.pkl", "wb") as cache_file:
+    #     pickle.dump(out, cache_file)
+        
     return {"content": out}
 
-
-    # return {}
 
 if __name__ == '__main__':
     app.run()
