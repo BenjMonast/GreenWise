@@ -127,7 +127,7 @@ def get_rec(prod: str, rank_threshold=0.4, same_threshold=0.2, exclude_high_carb
 if __name__ == '__main__':
     
     # query_string = db[35, 0]
-    query_string = "Vanilla Original Nutrition Shake"
+    query_string = "Frosted Cereal"
 
     carbon_cost = get_c02e(query_string)
     print(f"Finding alternatives for: {query_string}   (C02e cost: {carbon_cost})")
