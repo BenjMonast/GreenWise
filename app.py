@@ -41,8 +41,27 @@ def index():
     else:
         totalcarbon = sum([row[3] for row in db])
 
+    display_total = round(35 + totalcarbon + 14.67 + 10.18 + 12.35 + 8.61 + 20.95, 2)
 
-    return render_template("index.html", data=db_with_rec, num=numtasks, carbon=totalcarbon)
+    leaves = 0
+    reduction = 0
+    
+    print(db_with_rec)
+
+
+    for row in db_with_rec:
+        if row[5] == '':
+            continue
+            
+        orig = row[3]
+        new = float(row[5].split("2e: ")[-1])
+
+        reduction += (orig - new)
+        leaves += 1
+
+
+
+    return render_template("index.html", data=db_with_rec, num=numtasks, carbon=totalcarbon, total=display_total, leaves=leaves, reduction=reduction)
 
 # @app.route("/carbon")
 # def carbon():
