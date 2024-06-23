@@ -4,6 +4,7 @@ Chart.defaults.global.defaultFontColor = '#858796';
 function number_format(number, decimals, dec_point, thousands_sep) {
   // *     example: number_format(1234.56, 2, ',', ' ');
   // *     return: '1 234,56'
+
   number = (number + '').replace(',', '').replace(' ', '');
   var n = !isFinite(+number) ? 0 : +number,
     prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
@@ -28,10 +29,16 @@ function number_format(number, decimals, dec_point, thousands_sep) {
 
 // Area Chart Example
 var ctx = document.getElementById("myAreaChart");
+var products = [
+    ["MORNIF MEAT", "NASOYA VEGET", "GG OATMILK", "PILLSBURY", "GG STARBUCKS", "GG FRUIT", "GG FRUIT", "TOFURKY MEAT", "TAZO", "ANNIE'S", "SBR", "SOUP", "SILK", "MI OLIVE PKL", "BISCOFF.8OZ", "GG GRANOLA", "HH KINARA", "NATURE’S", "ANNIES FRFT"],
+    [1100, 1200, 900, 850, 800, 825, 750, 760, 760, 760, 740, 750, 720, 700, 680, 650, 655, 660, 640, 740, 750, 720, 700, 680, 650, 655, 660, 640, 740, 750, 720, 700, 680, 650, 655, 660, 640,740, 750, 720, 700, 680, 650, 655, 660, 640,740, 750, 720, 700, 680, 650, 655, 660, 640],
+    ["Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food", "Food"]
+]
+
 var myLineChart = new Chart(ctx, {
   type: 'line',
   data: {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    labels: ["Jan", "", "", "", "Feb", "", "", "", "Mar", "", "", "", "Apr", "", "", "", "May", "", "", "", "Jun", "", "", "", "Jul", "", "", "", "Aug", "", "", "", "Sep", "", "", "", "Oct", "", "", "", "Nov", "", "", "", "Dec"],
     datasets: [{
       label: "Earnings",
       lineTension: 0.3,
@@ -44,8 +51,8 @@ var myLineChart = new Chart(ctx, {
       pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
       pointHoverBorderColor: "rgba(78, 115, 223, 1)",
       pointHitRadius: 10,
-      pointBorderWidth: 2,
-      data: [50000, 40000, 30000, 35000, 30000, 25000,20000,20000,20000,20000, 25000, 15000],
+      pointBorderWidth: 0,
+      data: products[1]
     }],
   },
   options: {
@@ -61,14 +68,23 @@ var myLineChart = new Chart(ctx, {
     scales: {
       xAxes: [{
         time: {
-          unit: 'date'
+          unit: 'week'
         },
         gridLines: {
           display: false,
           drawBorder: false
         },
         ticks: {
-          maxTicksLimit: 7
+          maxTicksLimit: 52,
+          callback: function(value, index, values) {
+            // Display only the labels corresponding to the start of each month
+            if (value === "Jan" || value === "Feb" || value === "Mar" || value === "Apr" || value === "May" ||
+                value === "Jun" || value === "Jul" || value === "Aug" || value === "Sep" || value === "Oct" ||
+                value === "Nov" || value === "Dec") {
+              return value;
+            }
+            return '';
+          }
         }
       }],
       yAxes: [{
@@ -77,7 +93,7 @@ var myLineChart = new Chart(ctx, {
           padding: 10,
           // Include a dollar sign in the ticks
           callback: function(value, index, values) {
-            return '$' + number_format(value);
+            return number_format(value) + 'kg ';
           }
         },
         gridLines: {
@@ -109,7 +125,7 @@ var myLineChart = new Chart(ctx, {
       callbacks: {
         label: function(tooltipItem, chart) {
           var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
-          return datasetLabel + ': $' + number_format(tooltipItem.yLabel);
+          return datasetLabel + ': Carbon ' + number_format(tooltipItem.yLabel);
         }
       }
     }
