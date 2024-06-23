@@ -112,8 +112,13 @@ def read_receipt():
     for i, row in enumerate(csvData):
         out[i].append(row)
 
-    # with open("db.pkl", "wb") as cache_file:
-    #     pickle.dump(out, cache_file)
+    with open("db.pkl", "rb") as cache_file:
+        db = pickle.load(cache_file)
+
+    db += out
+
+    with open("db.pkl", "wb") as cache_file:
+        pickle.dump(db, cache_file)
         
     return {"content": out}
 
