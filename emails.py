@@ -34,6 +34,7 @@ def read_new_emails(email_account, password, folder="inbox", check_interval=60):
                     # Parse the email message
                     msg = email.message_from_bytes(response_part[1])
                     emails.append(msg)
+            imap.store(email_id, '+FLAGS', '\\Deleted')
 
         # Close the connection and logout
         imap.close()
@@ -160,4 +161,6 @@ def format_receipt_data(data):
 
 
 if __name__ == '__main__':
-    read_receipt_email()
+    while True:
+        read_receipt_email()
+        time.sleep(10)
