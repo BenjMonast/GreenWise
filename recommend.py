@@ -118,7 +118,7 @@ def nearest_strings(
     query_string: str,
     model=EMBEDDING_MODEL,
 ) -> tuple[list[int], list[float]]:
-    """Print out the nearest neighbors of a given string."""
+    """Get the nearest neighbors of a given string."""
 
     # get the embedding of the source string
     query_embedding = get_embedding(query_string)
@@ -129,12 +129,12 @@ def nearest_strings(
         n_results=10,
     )
 
-    print("="*8)
-    print("SEARCHING: ", query_string)
-    print("="*5)
-    for i in range(len(res["documents"][0])): # 
-        print(f"String: {res['documents'][0][i]}\nDistance:{res['distances'][0][i]}")
-    print("="*8)
+    # print("="*8)
+    # print("SEARCHING: ", query_string)
+    # print("="*5)
+    # for i in range(len(res["documents"][0])): # 
+    #     print(f"String: {res['documents'][0][i]}\nDistance:{res['distances'][0][i]}")
+    # print("="*8)
 
     return res["documents"][0], res["distances"][0], [float(c["carbon"]) for c in res["metadatas"][0]], [c["company"] for c in res["metadatas"][0]]
 
@@ -157,7 +157,7 @@ def get_co2e(prod: str, same_threshold=0.9):
 
 
 
-def get_rec(prod: str, rank_threshold=2.0, exclude_high_carbon=True):
+def get_rec(prod: str, rank_threshold=1.0, exclude_high_carbon=True):
 
     names, distances, carbon, companies = nearest_strings(prod)
 
@@ -173,7 +173,7 @@ def get_rec(prod: str, rank_threshold=2.0, exclude_high_carbon=True):
         if distances[i] > rank_threshold:
             continue
 
-        if exclude_high_carbon and carbon_cost <= carbon[i] + 0.05:
+        if exclude_high_carbon and carbon_cost <= carbon[i] + 1.1:
             continue
 
         return name, float(carbon[i]), distances[i], companies[i]

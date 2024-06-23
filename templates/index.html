@@ -248,20 +248,25 @@
                                                     {% for cell in row[0:5] %}
                                                         {% if loop.index0 == 0 %}
                                                         <td>
-                                                            <a tabindex="0" data-toggle="popover" data-trigger="focus" 
-                                                              title="{% if row[5] %}Low Carbon Opportunity{% endif %}"
-                                                              data-content="{{ row[5] }}">
                                                                 <div class="d-flex justify-content-between align-items-center">
                                                                     <div class="text-left">
                                                                         <span>{{ cell }}</span>
                                                                     </div>
                                                                     {% if row[5] %}
-                                                                    <div>
+                                                                    <div class="text-right">
+                                                                        {% if row[6] and row[5] %}
+                                                                        <a href="{{ row[6] }}">
+                                                                            <i class="fa fa-link" style="color:blue"></i>
+                                                                        </a>
+                                                                        {% endif %}
+                                                                        <a width="100%" style="width: 100%; height: 100%;" tabindex="0" data-toggle="popover" data-trigger="focus" 
+                                                              title="{% if row[5] %}Low Carbon Opportunity{% endif %}"
+                                                              data-content="{{ row[5] }}">
                                                                         <i class="fa fa-leaf" style="color:green"></i>
+                                                                        </a>
                                                                     </div>
                                                                     {% endif %}
                                                                 </div>
-                                                            </a>
                                                         </td>
                                                         {% else %}
                                                         <td>

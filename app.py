@@ -10,6 +10,17 @@ global numtasks
 
 app = Flask(__name__)
 
+link_for_prod = {
+    "CHIK'N VEGGIE NUGGETS, CHIK'N from Worthington Foods Inc.": "https://www.morningstarfarms.com/en_US/products/chikn/morningstar-farms-chik-n-nuggets-product.html",
+    "JUMBO FLAKY BUTTERMILK FLAVORED BISCUITS, BUTTERMILK from Giant Eagle, Inc.": "https://www.gianteagle.com/grocery/search/product/00018000002108",
+    "Oatly Oatmilk Full Fat 32 fl oz (Ambient Oat Drink) from oatly": "https://www.oatly.com/en-us/products/oatmilk/oatmilk-32-oz",
+    "ORGANIC NO CAFFEINE HIBISCUS COLD BREW TEA VARIETY PACK, PEACH,RASPBERRY,MANGO from Langer Juice Company, Inc.": "https://langer-juice-company.myshopify.com/collections/20oz-organic-no-caffeine-hibiscus-tea",
+    "Annie's Organic Sweet & Spicy BBQ Sauce from General Mills, Inc.": "https://www.amazon.com/Annies-Organic-Gluten-Sweet-Spicy/dp/B004SI9SCQ",
+    "KOSHER DILL CHIPS, KOSHER DILL from Mount Olive Pickle Company Inc.": "https://www.mtolivepickles.com/pickle-products/kosher-dill-hamburger-chips/",
+    "Kellogg's Nutri-Grain Cereal Bars Apple Cinnamon 31.2oz from Kellogg Company US": "https://www.walmart.com/ip/Nutri-Grain-Apple-Cinnamon-Chewy-Soft-Baked-Breakfast-Bars-31-2-oz-24-Count/52683518",
+    "HOT & SPICY VEGGIE SAUSAGE PATTIES, HOT & SPICY VEGGIE from Worthington Foods Inc.": "https://eatworthington.com/sausage-patty/"
+}
+
 @app.route("/")
 def index():
     numtasks = 0
@@ -30,11 +41,17 @@ def index():
         for item in db:
             rec_name, rec_carbon, _, rec_company = get_rec(item[0])
             if rec_name != -1:
-                rec = [f"{rec_name} from {rec_company}\nC02e: {rec_carbon}"]
+            
+                desc = f"{rec_name} from {rec_company}"
+
+                print(desc)
+                link = "" if desc not in link_for_prod.keys() else link_for_prod[desc]
+
+                rec = [f"{desc}\nC02e: {rec_carbon}", link]
                 db_with_rec.append(item + rec)
                 numtasks = numtasks + 1
             else:
-                db_with_rec.append(item + [""])
+                db_with_rec.append(item + ["", ""])
 
     if len(db) == 0:
         totalcarbon = 0
@@ -51,6 +68,50 @@ def index():
 @app.route("/manual")
 def manual():
     return render_template("manual.html")
+
+
+
+def get_link(string):
+    print(f"getting link for:\n {string}\n============")
+    link = None
+    attempts = 0
+
+    while link == None and attempts < 4:
+        try:    
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {OAI_TOKEN}"
+            }
+
+            payload = {
+                "model": "gpt-4o",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": f"Find a link to a place to purchase this product. The link can be from any website, and your response should just be a link. The product is: \n{string}"
+                            }
+                        ]
+                    }
+                ],
+                "max_tokens": 1000
+            }
+
+            response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+            print(response.json())
+            message = response.json()['choices'][0]['message']['content']
+
+            link = re.search(r'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)', message, re.DOTALL)[0]
+
+        except Exception as e:
+            print(e)
+            attempts += 1
+
+    print(f"link is: {link}")
+    return link
+
 
 
 @app.route("/read_receipt", methods=['POST'])
