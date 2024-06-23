@@ -19,8 +19,8 @@ def index():
             db = pickle.load(f)
         
         # function to sort
-        def get_date(item):
-            return datetime.strptime(item[4], "%Y-%m-%d")
+        def get_date(date):
+            return datetime.strptime(date[3], "%Y-%m-%d")
 
         db = sorted(db, key=get_date)
 
