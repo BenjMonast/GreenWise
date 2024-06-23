@@ -1,6 +1,8 @@
 from flask import Flask, request, render_template
+from recommend import get_rec
 from tokens import *
 import base64, requests, re, pickle, os
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -10,7 +12,24 @@ def index():
     if os.path.isfile("db.pkl"):
         with open("db.pkl", "rb") as f:
             db = pickle.load(f)
-    return render_template("index.html", data=db)
+        
+        # function to sort
+        def get_date(item):
+            return datetime.strptime(item[3], "%Y-%m-%d")
+
+        db = sorted(db, key=get_date)
+
+        db_with_rec = []
+
+        for item in db:
+            recs = get_rec(item[0])
+            if len(recs) > 0:
+                rec = [recs[0], recs[1], rec[5]]
+                db_with_rec.append(item + [rec])
+            else:
+                db_with_rec.append(item + ["", "", ""])
+
+    return render_template("index.html", data=db_with_rec)
 
 # @app.route("/carbon")
 # def carbon():
