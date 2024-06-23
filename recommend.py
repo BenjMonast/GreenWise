@@ -95,12 +95,12 @@ v = embedding_cache.values()
 
 print("loading into chroma")
 
-for i in range(0, len(embeds), 5000):
+for i in range(0, len(embeds), 166):
     collection.add(
-        embeddings=embeds[i:min(i+5000,len(embeds))],
-        metadatas=carbon[i:min(i+5000,len(embeds))],
-        documents=names[i:min(i+5000,len(embeds))],
-        ids=ids[i:min(i+5000,len(embeds))],
+        embeddings=embeds[i:min(i+166,len(embeds))],
+        metadatas=carbon[i:min(i+166,len(embeds))],
+        documents=names[i:min(i+166,len(embeds))],
+        ids=ids[i:min(i+166,len(embeds))],
     )
 
 print("loaded chroma")
