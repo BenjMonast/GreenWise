@@ -2,10 +2,11 @@ import imaplib
 import email
 import os
 import pickle
+from datetime import date, datetime
 from email.header import decode_header
 import getpass
 import time
-from tokens import OAI_TOKEN
+from tokens import EMAIL_PASSWORD, OAI_TOKEN
 import base64, requests, re
 
 def read_new_emails(email_account, password, folder="inbox", check_interval=60):
@@ -92,8 +93,7 @@ def read_new_emails(email_account, password, folder="inbox", check_interval=60):
             return emailstring
 
 def read_receipt_email():
-    OAI_TOKEN = "sk-proj-4detDT2cE6pPgrFVXeYCT3BlbkFJqIs6aFzDL3BWhNAKd0tI"
-    receipt = read_new_emails("somethingnormalai@gmail.com", "bszr fscr qfmy txto")
+    receipt = read_new_emails("somethingnormalai@gmail.com", EMAIL_PASSWORD)
     if receipt is not None:
         csvData = None
         attempts = 0
@@ -126,7 +126,7 @@ def read_receipt_email():
                 }
                 response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
                 message = response.json()['choices'][0]['message']['content']
-                csvData = re.search(r'```csv\n(.*)\n```', message, re.DOTALL)[0]
+                csvData = re.search(r'```csv\n(.*)\n```', message, re.DOTALL)[1].splitlines()[1:]
                 if len(csvData) is None:
                     raise Exception
             except Exception as e:
@@ -137,11 +137,25 @@ def read_receipt_email():
     else:
         with open("db.pkl", "rb") as cache_file:
             db = pickle.load(cache_file)
-
-    db += csvData
-
+    fcsvData = format_receipt_data(csvData)
+    db += fcsvData
+    print(fcsvData)
     with open("db.pkl", "wb") as cache_file:
         pickle.dump(db, cache_file)
+    return {"content": format_receipt_data(csvData)}
 
-    return {"content": csvData}
 
+def format_receipt_data(data):
+    formatted_data = []
+    current_date = datetime.today().strftime('%Y-%m-%d')
+
+    for entry in data:
+        parts = entry.split(',')
+        parts.append(current_date)
+        formatted_data.append(parts)
+
+    return formatted_data
+
+
+if __name__ == '__main__':
+    read_receipt_email()
