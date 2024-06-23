@@ -9,9 +9,9 @@ app = Flask(__name__)
 def index():
     return render_template("index.html")
 
-@app.route("/carbon")
-def carbon():
-    return render_template("carbon.html")
+# @app.route("/carbon")
+# def carbon():
+#     return render_template("carbon.html")
 
 @app.route("/manual")
 def manual():
