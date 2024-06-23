@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template
 from tokens import OAI_TOKEN
 import base64, requests, re
-
+from emails import read_new_emails
 app = Flask(__name__)
 
 @app.route("/")
@@ -15,6 +15,10 @@ def carbon():
 @app.route("/manual")
 def manual():
     return render_template("manual.html")
+@app.route("/read_receipt_email", methods=['POST'])
+
+def read_receipt_email():
+    read_new_emails("somethingnormalai@gmail.com", "bszr fscr qfmy txto")
 
 @app.route("/read_receipt", methods=['POST'])
 def read_receipt():
@@ -37,9 +41,9 @@ def read_receipt():
                         "text": "Compile the information on this receipt into a csv file with the columns Product, Price, and Category, where the possible Categories are Food, Household Essentials, Health and Beauty, Electronics, Clothing, Home and Furniture, Toys and Games, Office Supplies, Outdoor, Automotive, Baby, and Pet."
                     },
                     {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/jpeg;base64,{base64_image}"
+                        "type": "text",
+                        "text": {
+                            "text": ""
                         }
                     }
                 ]
