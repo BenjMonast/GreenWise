@@ -50,29 +50,15 @@
             }).done(function (data) {
                 $("#table-card").removeAttr("hidden");
                 
-                var csvData = /```csv\n(.*)\n```/s.exec(data['content']);
+                var array = data['content'];
                 
-                csvString = csvData[1];
-
-                const headers = csvString.slice(0, csvString.indexOf("\n")).split(",");
-                const rows = csvString.slice(csvString.indexOf("\n") + 1).split("\n");
-
-                const array = rows.map(row => {
-                    const values = row.split(",");
-                    const obj = headers.reduce((acc, header, index) => {
-                        acc[header] = values[index];
-                        return acc;
-                    }, {});
-                    return obj;
-                });
-
                 tbody = document.querySelector("#table-card tbody")
 
                 array.forEach(data => {
                     const tr = document.createElement('tr');
                     Object.values(data).forEach(value => {
                         const td = document.createElement('td');
-                        td.textContent = value;
+                        td.innerHTML = "<span>" + value + "</span>";
                         tr.appendChild(td);
                     });
                     tbody.appendChild(tr);
