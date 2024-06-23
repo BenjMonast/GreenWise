@@ -87,7 +87,7 @@ def read_receipt():
 
         items.append((words[0], words[-1]))
 
-    with open('cache.pkl', 'rb') as f:
+    with open('redcircle_cache.pkl', 'rb') as f:
         cache = pickle.load(f)
     
     out = []
@@ -106,7 +106,7 @@ def read_receipt():
 
         out.append([cache[id][0]['product']['title'], row[1]])
 
-    with open('cache.pkl', 'wb') as f:
+    with open('redcircle_cache.pkl', 'wb') as f:
         pickle.dump(cache, f)
 
     return {"content": out}
