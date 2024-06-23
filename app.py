@@ -4,6 +4,7 @@ from tokens import *
 import base64, requests, re, pickle, os
 from datetime import datetime
 from markupsafe import Markup
+from datetime import date as d
 
 global numtasks
 
@@ -67,7 +68,10 @@ def read_receipt():
     }
 
     response = requests.post(url, json=payload, headers=headers)
-    date = response.json()['date']['data'].split("T")[0]
+    try:
+        date = response.json()['date']['data'].split("T")[0]
+    except:
+        date = d.today().strftime('%Y-%m-%d')
 
     items = []
 
@@ -87,6 +91,7 @@ def read_receipt():
     for row in items:
         id = row[0]
         if id not in cache:
+            print(f"{id} not found in cache, querying api")
             json = requests.get(f"https://api.redcircleapi.com/request?api_key={RC_TOKEN}&type=search&search_term={id}").json()
             if "search_results" in json:
                 cache[id] = json["search_results"]

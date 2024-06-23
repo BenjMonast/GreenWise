@@ -8,6 +8,7 @@ import getpass
 import time
 from tokens import EMAIL_PASSWORD, OAI_TOKEN
 import base64, requests, re
+import recommend
 
 def read_new_emails(email_account, password, folder="inbox", check_interval=60):
     def fetch_emails():
@@ -151,6 +152,7 @@ def format_receipt_data(data):
 
     for entry in data:
         parts = entry.split(',')
+        parts.append(recommend.get_co2e(parts[0]))
         parts.append(current_date)
         formatted_data.append(parts)
 
