@@ -117,7 +117,7 @@ def get_c02e(prod: str, same_threshold=0.2):
             return sum(really_close) / len(really_close)
         else:
             print("UNABLE TO FIND SIMILIAR ITEMS....")
-            return 2
+            return -1
 
 
 

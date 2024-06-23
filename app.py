@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template
-from recommend import get_rec
+from recommend import get_c02e, get_rec
 from tokens import *
 import base64, requests, re, pickle, os
 from datetime import datetime
@@ -139,6 +139,7 @@ def read_receipt():
     for i, row in enumerate(csvData):
         out[i].append(row)
         out[i].append(date)
+        out[i].append(get_c02e(out[i][0]))
 
     if not os.path.isfile("db.pkl"):
         db = []
