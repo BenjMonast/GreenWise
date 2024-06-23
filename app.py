@@ -50,10 +50,10 @@ def read_receipt():
 
     response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
     message = response.json()['choices'][0]['message']['content']
-
     
+    csvData =  re.search(r'```csv(.*)```', message, re.DOTALL)[0]
 
-    return {"content": message}
+    return {"content": csvData}
     # return {}
 
 if __name__ == '__main__':

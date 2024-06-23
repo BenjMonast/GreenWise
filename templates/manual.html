@@ -49,10 +49,7 @@
                 data: formData
             }).done(function (data) {
                 $("#table-card").removeAttr("hidden");
-                
-                var csvData = /```csv\n(.*)\n```/s.exec(data['content']);
-                
-                csvString = csvData[1];
+                let csvString = data["content"];
 
                 const headers = csvString.slice(0, csvString.indexOf("\n")).split(",");
                 const rows = csvString.slice(csvString.indexOf("\n") + 1).split("\n");
