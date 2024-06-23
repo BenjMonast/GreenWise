@@ -5,10 +5,13 @@ import base64, requests, re, pickle, os
 from datetime import datetime
 from markupsafe import Markup
 
+global numtasks
+
 app = Flask(__name__)
 
 @app.route("/")
 def index():
+    numtasks = 0
     db = []
     db_with_rec = []
     if os.path.isfile("db.pkl"):
@@ -24,14 +27,15 @@ def index():
         db_with_rec = []
 
         for item in db:
-            rec_name, rec_carbon, _ = get_rec(item[0])
+            rec_name, rec_carbon, _, rec_company = get_rec(item[0])
             if rec_name != -1:
-                rec = [f"{rec_name}\nC02e: {rec_carbon}"]
+                rec = [f"{rec_name} from {rec_company}\nC02e: {rec_carbon}"]
                 db_with_rec.append(item + rec)
+                numtasks = numtasks + 1
             else:
-                db_with_rec.append(item + [""])         
+                db_with_rec.append(item + [""])
 
-    return render_template("index.html", data=db_with_rec)
+    return render_template("index.html", data=db_with_rec, num=numtasks)
 
 # @app.route("/carbon")
 # def carbon():
@@ -153,7 +157,7 @@ def read_receipt():
             db = pickle.load(cache_file)
 
     db += out
-
+    print(db)
     with open("db.pkl", "wb") as cache_file:
         pickle.dump(db, cache_file)
         
