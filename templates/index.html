@@ -243,9 +243,17 @@
                                                     <th>Product</th>
                                                     <th>Price</th>
                                                     <th>Category</th>
+                                                    <th>Date</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
+                                                {% for row in data %}
+                                                <tr>
+                                                    {% for cell in row %}
+                                                        <td>{{ cell }}</td>
+                                                    {% endfor %}
+                                                </tr>
+                                                {% endfor %}
                                             </tbody>
                                         </table>
                                     </div>

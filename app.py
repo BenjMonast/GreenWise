@@ -1,12 +1,16 @@
 from flask import Flask, request, render_template
 from tokens import *
-import base64, requests, re, pickle
+import base64, requests, re, pickle, os
 
 app = Flask(__name__)
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    db = []
+    if os.path.isfile("db.pkl"):
+        with open("db.pkl", "rb") as f:
+            db = pickle.load(f)
+    return render_template("index.html", data=db)
 
 # @app.route("/carbon")
 # def carbon():
@@ -38,6 +42,7 @@ def read_receipt():
     }
 
     response = requests.post(url, json=payload, headers=headers)
+    date = response.json()['date']['data'].split("T")[0]
 
     items = []
 
@@ -105,15 +110,22 @@ def read_receipt():
             message = response.json()['choices'][0]['message']['content']
 
             csvData = re.search(r'```csv\n(.*)\n```', message, re.DOTALL)[1].splitlines()[1:]
+
+            if len(csvData) != len(out):
+                raise Exception
         except Exception as e:
             print(e)
             attempts += 1
 
     for i, row in enumerate(csvData):
         out[i].append(row)
+        out[i].append(date)
 
-    with open("db.pkl", "rb") as cache_file:
-        db = pickle.load(cache_file)
+    if not os.path.isfile("db.pkl"):
+        db = []
+    else:
+        with open("db.pkl", "rb") as cache_file:
+            db = pickle.load(cache_file)
 
     db += out
 
