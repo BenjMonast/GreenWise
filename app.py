@@ -24,9 +24,9 @@ def index():
         db_with_rec = []
 
         for item in db:
-            rec_name, rec_carbon, _ = get_rec(item[0])
+            rec_name, rec_carbon, _, rec_company = get_rec(item[0])
             if rec_name != -1:
-                rec = [f"{rec_name}\nC02e: {rec_carbon}"]
+                rec = [f"{rec_name} from {rec_company}\nC02e: {rec_carbon}"]
                 db_with_rec.append(item + rec)
                 numtasks = numtasks + 1
             else:

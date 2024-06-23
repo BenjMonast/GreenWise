@@ -62,7 +62,7 @@ changed = False
 embeds = []
 names = []
 ids = []
-carbon = []
+meta_data = []
 
 for i, row in enumerate(db):
 
@@ -80,7 +80,7 @@ for i, row in enumerate(db):
     embeds.append(embedding_cache[(row[0], EMBEDDING_MODEL)])
     names.append(row[0])
     ids.append(str(i))
-    carbon.append({"carbon": row[2]})
+    meta_data.append({"carbon": row[2], "company": row[1]})
         
 if changed:
     with open(embedding_cache_path, "wb") as embedding_cache_file:
@@ -95,12 +95,14 @@ v = embedding_cache.values()
 
 print("loading into chroma")
 
-for i in range(0, len(embeds), 166):
+BATCH_SIZE = 5000
+
+for i in range(0, len(embeds), BATCH_SIZE):
     collection.add(
-        embeddings=embeds[i:min(i+166,len(embeds))],
-        metadatas=carbon[i:min(i+166,len(embeds))],
-        documents=names[i:min(i+166,len(embeds))],
-        ids=ids[i:min(i+166,len(embeds))],
+        embeddings=embeds[i:min(i+BATCH_SIZE,len(embeds))],
+        metadatas=meta_data[i:min(i+BATCH_SIZE,len(embeds))],
+        documents=names[i:min(i+BATCH_SIZE,len(embeds))],
+        ids=ids[i:min(i+BATCH_SIZE,len(embeds))],
     )
 
 print("loaded chroma")
@@ -134,7 +136,7 @@ def nearest_strings(
         print(f"String: {res['documents'][0][i]}\nDistance:{res['distances'][0][i]}")
     print("="*8)
 
-    return res["documents"][0], res["distances"][0], [float(c["carbon"]) for c in res["metadatas"][0]]
+    return res["documents"][0], res["distances"][0], [float(c["carbon"]) for c in res["metadatas"][0]], [c["company"] for c in res["metadatas"][0]]
 
 
 def get_co2e(prod: str, same_threshold=0.9):
@@ -145,7 +147,7 @@ def get_co2e(prod: str, same_threshold=0.9):
             if np.char.lower(item[0]) == prod.lower():
                 return round(item[2],2)
     else:
-        _, distances, co2e = nearest_strings(prod)
+        _, distances, co2e, _ = nearest_strings(prod)
         really_close = [co2e[i] for i, d in enumerate(distances) if d <= same_threshold]
         if len(really_close) > 0:
             return round(sum(really_close) / len(really_close),2)
@@ -157,7 +159,7 @@ def get_co2e(prod: str, same_threshold=0.9):
 
 def get_rec(prod: str, rank_threshold=2.0, exclude_high_carbon=True):
 
-    names, distances, carbon = nearest_strings(prod)
+    names, distances, carbon, companies = nearest_strings(prod)
 
     carbon_cost = get_co2e(prod)
 
@@ -174,10 +176,10 @@ def get_rec(prod: str, rank_threshold=2.0, exclude_high_carbon=True):
         if exclude_high_carbon and carbon_cost <= carbon[i] + 0.05:
             continue
 
-        return name, float(carbon[i]), distances[i]
+        return name, float(carbon[i]), distances[i], companies[i]
 
-    return -1, -1, -1
-    
+    return -1, -1, -1, -1
+
 
 if __name__ == '__main__':
     
@@ -187,7 +189,7 @@ if __name__ == '__main__':
     carbon_cost = get_co2e(query_string)
     print(f"Finding alternatives for: {query_string}   (C02e cost: {carbon_cost})")
 
-    rec_name, rec_carbon, rec_dist = get_rec(query_string, rank_threshold=0.6, exclude_high_carbon=False)
+    rec_name, rec_carbon, rec_dist, rec_company = get_rec(query_string, rank_threshold=0.6, exclude_high_carbon=False)
 
     isLowCarbonStr = "LOWER CARBON" if rec_carbon < carbon_cost else ""
 
@@ -196,6 +198,7 @@ if __name__ == '__main__':
         f"""
     --- {isLowCarbonStr} Recommendation  ---
     String: {rec_name}
+    Company: {rec_company}
     C02e: {rec_carbon}
     dist: {rec_dist}"""
     )
