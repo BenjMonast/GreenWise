@@ -111,5 +111,8 @@ def read_receipt():
 
     return {"content": out}
 
+
+    # return {}
+
 if __name__ == '__main__':
     app.run()
